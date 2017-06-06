@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +25,7 @@ import java.net.URL;
 public class MainActivity extends Activity implements View.OnClickListener {
     private Button btAcessarWS;
     private ProgressBar mProgress;
+    private EditText etUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,13 +34,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btAcessarWS = (Button)findViewById(R.id.bt_acessar_ws);
         btAcessarWS.setOnClickListener(this);
         mProgress = (ProgressBar)findViewById(R.id.pb_carregando);
+        etUrl = (EditText)findViewById(R.id.et_url);
     }
 
     @Override
     public void onClick(View view) {
         if (view == btAcessarWS){
-            buscarTexto("http://192.168.101.64/texto.php");
-            buscarData("http://192.168.101.64/data.php");
+            buscarData(etUrl.getText().toString());
         }
     }
 
@@ -63,9 +66,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
                         while ((temp = br.readLine()) != null){
                             sb.append(temp);
                         }
-                    }
+                    } else
+                        return null;
                     jsonObject = new JSONObject(sb.toString());
-                    Log.e("Erro JSON", jsonObject.toString());
+
                 } catch (IOException e) {
                     Log.e("SDM", "Erro na recuperação do objeto");
                 } catch (JSONException e) {
@@ -76,56 +80,23 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
             @Override
             protected void onPostExecute(JSONObject jsonObject) {
-                String data = null, hora = null, ds = null;
+                String json;
                 super.onPostExecute(jsonObject);
-                try {
-                    data = jsonObject.getInt("mday") + "/" + jsonObject.getInt("mon") + "/" + jsonObject.getInt("year");
-                    hora = jsonObject.getInt("hours") + ":" + jsonObject.getInt("minutes") + ":" + jsonObject.getInt("seconds");
-                    ds = jsonObject.getString("weekday");
-                } catch (JSONException e) {
-                    Log.e("SDM", "Erro na processamento do objeto JSON");
+                if (jsonObject != null) {
+                    json = jsonObject.toString();
+                    ((TextView) findViewById(R.id.tv_data)).setText(json);
                 }
-                ((TextView) findViewById(R.id.tv_data)).setText(data + "\n" + hora + "\n" + ds);
+                else {
+                    Toast.makeText(getBaseContext(), "Erro ao buscar o json", Toast.LENGTH_SHORT).show();
+                    ((TextView) findViewById(R.id.tv_data)).setText("");
+                }
                 mProgress.setVisibility(View.GONE);
             }
         };
         tarefa.execute(url);
     }
 
-    private void buscarTexto(String url) {
-        AsyncTask<String, Void, String> tarefa = new AsyncTask<String, Void, String>() {
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-            }
-
-            @Override
-            protected String doInBackground(String... strings) {
-                StringBuilder sb = new StringBuilder();
-                try {
-                    HttpURLConnection conn =
-                            (HttpURLConnection)(new URL(strings[0])).openConnection();
-                    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK){
-                        InputStream is = conn.getInputStream();
-                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                        String temp;
-                        while ((temp = br.readLine()) != null){
-                            sb.append(temp);
-                        }
-                    }
-                } catch (IOException ioe) {
-                    Log.e("SDM", "Erro na recuperação de texto");
-                }
-                return sb.toString();
-            }
-
-            @Override
-            protected void onPostExecute(String s) {
-                super.onPostExecute(s);
-                TextView tv = (TextView)findViewById(R.id.tv_texto);
-                tv.setText(s);
-            }
-        };
-        tarefa.execute(url);
+    public static void chamaToast(View v, String mensagem) {
+        Toast.makeText(v.getContext(), mensagem, Toast.LENGTH_SHORT).show();
     }
 }

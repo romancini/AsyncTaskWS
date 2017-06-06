@@ -8,6 +8,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/texto_informacao"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tv_url_json"
+        android:labelFor="@+id/et_url"/>
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/et_url"/>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -4,4 +4,5 @@
         Clique no botão abaixo para preencher a tela com informações adquiridas nos Web Services
     </string>
     <string name="texto_botao">Acessar Web Services</string>
+    <string name="tv_url_json">Digite seu url que terá um JSON:</string>
 </resources>
